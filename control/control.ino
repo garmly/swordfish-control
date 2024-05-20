@@ -44,39 +44,68 @@ void loop() {
     // Read command from serial port
     if (Serial.available() > 0) {
         String command = Serial.readStringUntil('\n');
-        int pin = command.charAt(0) - 'A' + 5;
-        int state = command.charAt(1) - '0';
 
-        // Check for invalid commands
-        if (pin < 0 || pin > 13 || state < 0 || state > 1) {
-            Serial.println("Invalid command");
-            return;
-        }
+        if (command == "OPEN") {
+            // Open all valves
+            gn2PresValve.write(GN2_PRES_VLV_OPEN);
+            gn2VentValve.write(GN2_VENT_VLV_OPEN);
+            digitalWrite(PIN_FUEL_IGNT_VLV, HIGH);
+            digitalWrite(PIN_FUEL_MAIN_VLV, HIGH);
+            digitalWrite(PIN_OX_FILL_VLV, HIGH);
+            digitalWrite(PIN_OX_VENT_VLV, HIGH);
+            digitalWrite(PIN_OX_IGNT_VLV, HIGH);
+            digitalWrite(PIN_OX_MAIN_VLV, HIGH);
+            digitalWrite(PIN_SPARK_PLUG, HIGH);
+            Serial.println("ALL OPEN");
+        } else if (command == "CLOSE") {
+            // Close all valves
+            gn2PresValve.write(GN2_PRES_VLV_CLOSED);
+            gn2VentValve.write(GN2_VENT_VLV_CLOSED);
+            digitalWrite(PIN_FUEL_IGNT_VLV, LOW);
+            digitalWrite(PIN_FUEL_MAIN_VLV, LOW);
+            digitalWrite(PIN_OX_FILL_VLV, LOW);
+            digitalWrite(PIN_OX_VENT_VLV, LOW);
+            digitalWrite(PIN_OX_IGNT_VLV, LOW);
+            digitalWrite(PIN_OX_MAIN_VLV, LOW);
+            digitalWrite(PIN_SPARK_PLUG, LOW);
+            Serial.println("ALL CLOSED");
+        } else {
+            int pin = command.charAt(0) - 'A' + 5;
+            int state = command.charAt(1) - '0';
 
-        // Servo pin control
-        if (pin == PIN_GN2_PRES_VLV) {
-            if (state == 1) {
-                gn2PresValve.write(GN2_PRES_VLV_OPEN);
-            } else if (state == 0) {
-                gn2PresValve.write(GN2_PRES_VLV_CLOSED);
+            // Check for invalid commands
+            if (pin < 0 || pin > 13 || state < 0 || state > 1) {
+                Serial.println("Invalid command");
+                return;
             }
-        } else if (pin == PIN_GN2_VENT_VLV) {
-            if (state == 1) {
-                gn2VentValve.write(GN2_VENT_VLV_OPEN);
-            } else if (state == 0) {
-                gn2VentValve.write(GN2_VENT_VLV_CLOSED);
-            }
-        }
 
-        // Relay pin control
-        if (state == 1) {
-            digitalWrite(pin, HIGH);
-            printPinState(pin, state);
-        } else if (state == 0) {
-            digitalWrite(pin, LOW);
-            printPinState(pin, state);
+            // Servo pin control
+            if (pin == PIN_GN2_PRES_VLV) {
+                if (state == 1) {
+                    gn2PresValve.write(GN2_PRES_VLV_OPEN);
+                } else if (state == 0) {
+                    gn2PresValve.write(GN2_PRES_VLV_CLOSED);
+                }
+            } else if (pin == PIN_GN2_VENT_VLV) {
+                if (state == 1) {
+                    gn2VentValve.write(GN2_VENT_VLV_OPEN);
+                } else if (state == 0) {
+                    gn2VentValve.write(GN2_VENT_VLV_CLOSED);
+                }
+            }
+
+            // Relay pin control
+            if (state == 1) {
+                digitalWrite(pin, HIGH);
+                printPinState(pin, state);
+            } else if (state == 0) {
+                digitalWrite(pin, LOW);
+                printPinState(pin, state);
+            }
         }
     }
+
+        
 }
 
 
