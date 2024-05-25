@@ -24,6 +24,11 @@ const int FUEL_VENT_VLV_OPEN = 180;
 const int OX_VENT_VLV_CLOSED = 0;
 const int OX_VENT_VLV_OPEN = 180;
 
+// Pressure sensor values
+int presCC = 0;
+int presOx = 0;
+int presFuel = 0;
+
 // Relay Pins
 const int relayPins[] = {
     PIN_SPARK_PLUG,
@@ -37,6 +42,9 @@ const int relayPins[] = {
 
 // Binary value representing the binary state of each component
 uint8_t machineState = 0b000000000;
+
+static unsigned long lastCommandTime = 0;
+const unsigned long COMMAND_TIMEOUT = 20 * 60 * 1000; // 20 minutes in milliseconds
 
 void setMachineState(uint8_t newState) {
     machineState = newState;
@@ -71,6 +79,46 @@ void open() {
     setMachineState(0b000000000);
 }
 
+void fire() {
+    unsigned long startTime = millis();
+
+    while (millis() - startTime < 81) {
+        setMachineState(0b000010001);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 1010) {
+        setMachineState(0b000010011);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 1375) {
+        setMachineState(0b000110011);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 2305) {
+        setMachineState(0b000110111);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 2474) {
+        setMachineState(0b000110100);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 3000) {
+        setMachineState(0b000100100);
+        printState();
+    }
+
+}
+
 void setup() {
     
     // Servo setup
@@ -92,11 +140,11 @@ void setup() {
 
 }
 
-void loop() {
-
-    int presCC = analogRead(A0);
-    int presOx = analogRead(A1);
-    int presFuel = analogRead(A2);
+void printState() {
+  
+    presCC = analogRead(A0);
+    presOx = analogRead(A1);
+    presFuel = analogRead(A2);
 
     Serial.print(presCC);
     Serial.print(",");
@@ -105,11 +153,21 @@ void loop() {
     Serial.print(presFuel);
     Serial.print(",");
     Serial.println(machineState);
+}
+
+void loop() {
+    printState();
 
     if (Serial.available()) {
         String newStateStr = Serial.readStringUntil('\n');
         uint8_t newState = newStateStr.toInt();
         setMachineState(newState);
+        lastCommandTime = millis();
+    }
+
+    // Check if the command timeout has occurred
+    if (millis() - lastCommandTime >= COMMAND_TIMEOUT) {
+        open();
     }
 
 }
