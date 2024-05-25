@@ -2,153 +2,114 @@
 #include <Servo.h>
 
 // Servos
-Servo gn2PresValve;
-Servo gn2VentValve;
+Servo oxVentValve;
+Servo fuelVentValve;
+
+// Servo Pins
+const int PIN_FUEL_VENT_VLV = 3;
+const int PIN_OX_VENT_VLV = 5;
 
 // Relay Pins
-const int PIN_GN2_PRES_VLV = 5; // Servo
-const int PIN_GN2_VENT_VLV = 6; // Servo
-const int PIN_FUEL_IGNT_VLV = 7;
-const int PIN_FUEL_MAIN_VLV = 8;
+const int PIN_SPARK_PLUG = 6;
+const int PIN_OX_IGNT_VLV = 7;
+const int PIN_OX_MAIN_VLV = 8;
 const int PIN_OX_FILL_VLV = 9;
-const int PIN_OX_VENT_VLV = 10;
-const int PIN_OX_IGNT_VLV = 11;
-const int PIN_OX_MAIN_VLV = 13;
-const int PIN_SPARK_PLUG = 12;
+const int PIN_FUEL_IGNT_VLV = 12;
+const int PIN_FUEL_MAIN_VLV = 11;
+const int PIN_FUEL_PRES_VLV = 10;
 
 // Positions of the servos at CLOSED and OPEN states
-const int GN2_PRES_VLV_CLOSED = 0;
-const int GN2_PRES_VLV_OPEN = 180;
-const int GN2_VENT_VLV_CLOSED = 0;
-const int GN2_VENT_VLV_OPEN = 180;
+const int FUEL_VENT_VLV_CLOSED = 0;
+const int FUEL_VENT_VLV_OPEN = 180;
+const int OX_VENT_VLV_CLOSED = 0;
+const int OX_VENT_VLV_OPEN = 180;
+
+// Relay Pins
+const int relayPins[] = {
+    PIN_SPARK_PLUG,
+    PIN_OX_IGNT_VLV,
+    PIN_OX_MAIN_VLV,
+    PIN_OX_FILL_VLV,
+    PIN_FUEL_IGNT_VLV,
+    PIN_FUEL_MAIN_VLV,
+    PIN_FUEL_PRES_VLV
+};
+
+// Binary value representing the binary state of each component
+uint8_t machineState = 0b000000000;
+
+void setMachineState(uint8_t newState) {
+    machineState = newState;
+    
+    for (size_t i = 0; i < 7; i++) {
+        if ((newState >> i) & 1) {
+            digitalWrite(relayPins[i], HIGH);
+        } else {
+            digitalWrite(relayPins[i], LOW);
+        }
+    }
+
+    // Control the servos based on the machine state
+    if ((newState >> 1) & 1) {
+        fuelVentValve.write(FUEL_VENT_VLV_OPEN);
+    } else {
+        fuelVentValve.write(FUEL_VENT_VLV_CLOSED);
+    }
+
+    if ((newState >> 1) & 1) {
+        oxVentValve.write(OX_VENT_VLV_OPEN);
+    } else {
+        oxVentValve.write(OX_VENT_VLV_CLOSED);
+    }
+}
+
+void close() {
+    setMachineState(0b111111110);
+}
+
+void open() {
+    setMachineState(0b000000000);
+}
 
 void setup() {
     
     // Servo setup
-    gn2PresValve.attach(PIN_GN2_PRES_VLV);
-    gn2VentValve.attach(PIN_GN2_VENT_VLV);
+    fuelVentValve.attach(PIN_FUEL_VENT_VLV);
+    oxVentValve.attach(PIN_OX_VENT_VLV);
 
     // Setting digital pins as OUTPUT
-    pinMode(PIN_FUEL_IGNT_VLV, OUTPUT);
-    pinMode(PIN_FUEL_MAIN_VLV, OUTPUT);
-    pinMode(PIN_OX_FILL_VLV, OUTPUT);
-    pinMode(PIN_OX_VENT_VLV, OUTPUT);
+    pinMode(PIN_SPARK_PLUG, OUTPUT);
     pinMode(PIN_OX_IGNT_VLV, OUTPUT);
     pinMode(PIN_OX_MAIN_VLV, OUTPUT);
-    pinMode(PIN_SPARK_PLUG, OUTPUT);
+    pinMode(PIN_OX_FILL_VLV, OUTPUT);
+    pinMode(PIN_FUEL_IGNT_VLV, OUTPUT);
+    pinMode(PIN_FUEL_MAIN_VLV, OUTPUT);
+    pinMode(PIN_FUEL_PRES_VLV, OUTPUT);
+
+    close();
 
     Serial.begin(9600);
+
 }
 
 void loop() {
-    // Read command from serial port
-    if (Serial.available() > 0) {
-        String command = Serial.readStringUntil('\n');
 
-        if (command == "OPEN") {
-            // Open all valves
-            gn2PresValve.write(GN2_PRES_VLV_OPEN);
-            gn2VentValve.write(GN2_VENT_VLV_OPEN);
-            digitalWrite(PIN_FUEL_IGNT_VLV, HIGH);
-            digitalWrite(PIN_FUEL_MAIN_VLV, HIGH);
-            digitalWrite(PIN_OX_FILL_VLV, HIGH);
-            digitalWrite(PIN_OX_VENT_VLV, HIGH);
-            digitalWrite(PIN_OX_IGNT_VLV, HIGH);
-            digitalWrite(PIN_OX_MAIN_VLV, HIGH);
-            digitalWrite(PIN_SPARK_PLUG, HIGH);
-            Serial.println("ALL OPEN");
-        } else if (command == "CLOSE") {
-            // Close all valves
-            gn2PresValve.write(GN2_PRES_VLV_CLOSED);
-            gn2VentValve.write(GN2_VENT_VLV_CLOSED);
-            digitalWrite(PIN_FUEL_IGNT_VLV, LOW);
-            digitalWrite(PIN_FUEL_MAIN_VLV, LOW);
-            digitalWrite(PIN_OX_FILL_VLV, LOW);
-            digitalWrite(PIN_OX_VENT_VLV, LOW);
-            digitalWrite(PIN_OX_IGNT_VLV, LOW);
-            digitalWrite(PIN_OX_MAIN_VLV, LOW);
-            digitalWrite(PIN_SPARK_PLUG, LOW);
-            Serial.println("ALL CLOSED");
-        } else {
-            int pin = command.charAt(0) - 'A' + 5;
-            int state = command.charAt(1) - '0';
+    int presCC = analogRead(A0);
+    int presOx = analogRead(A1);
+    int presFuel = analogRead(A2);
 
-            // Check for invalid commands
-            if (pin < 0 || pin > 13 || state < 0 || state > 1) {
-                Serial.println("Invalid command");
-                return;
-            }
+    Serial.print(presCC);
+    Serial.print(",");
+    Serial.print(presOx);
+    Serial.print(",");
+    Serial.print(presFuel);
+    Serial.print(",");
+    Serial.println(machineState);
 
-            // Servo pin control
-            if (pin == PIN_GN2_PRES_VLV) {
-                if (state == 1) {
-                    gn2PresValve.write(GN2_PRES_VLV_OPEN);
-                } else if (state == 0) {
-                    gn2PresValve.write(GN2_PRES_VLV_CLOSED);
-                }
-            } else if (pin == PIN_GN2_VENT_VLV) {
-                if (state == 1) {
-                    gn2VentValve.write(GN2_VENT_VLV_OPEN);
-                } else if (state == 0) {
-                    gn2VentValve.write(GN2_VENT_VLV_CLOSED);
-                }
-            }
-
-            // Relay pin control
-            if (state == 1) {
-                digitalWrite(pin, HIGH);
-                printPinState(pin, state);
-            } else if (state == 0) {
-                digitalWrite(pin, LOW);
-                printPinState(pin, state);
-            }
-        }
+    if (Serial.available()) {
+        String newStateStr = Serial.readStringUntil('\n');
+        uint8_t newState = newStateStr.toInt();
+        setMachineState(newState);
     }
 
-        
-}
-
-
-// Lookup table for which pin was toggled
-void printPinState(int pin, int state) {
-    switch (pin) {
-        case PIN_GN2_PRES_VLV:
-            Serial.print("GN2 Pressure Valve ");
-            break;
-        case PIN_GN2_VENT_VLV:
-            Serial.print("GN2 Vent Valve ");
-            break;
-        case PIN_FUEL_IGNT_VLV:
-            Serial.print("Fuel Ignition Valve ");
-            break;
-        case PIN_FUEL_MAIN_VLV:
-            Serial.print("Fuel Main Valve ");
-            break;
-        case PIN_OX_FILL_VLV:
-            Serial.print("Oxidizer Fill Valve ");
-            break;
-        case PIN_OX_VENT_VLV:
-            Serial.print("Oxidizer Vent Valve ");
-            break;
-        case PIN_OX_IGNT_VLV:
-            Serial.print("Oxidizer Ignition Valve ");
-            break;
-        case PIN_OX_MAIN_VLV:
-            Serial.print("Oxidizer Main Valve ");
-            break;
-        case PIN_SPARK_PLUG:
-            Serial.print("Spark Plug ");
-            break;
-        default:
-            Serial.print("Unknown Relay ");
-            break;
-    }
-    
-    if (state == 1) {
-        Serial.println("ON");
-    } else if (state == 0) {
-        Serial.println("OFF");
-    } else {
-        Serial.println("Invalid state");
-    }
 }
