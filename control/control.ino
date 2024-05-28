@@ -41,13 +41,18 @@ const int relayPins[] = {
 };
 
 // Binary value representing the binary state of each component
-uint8_t machineState = 0b000000000;
+uint16_t machineState = 0b000000000;
 
 static unsigned long lastCommandTime = 0;
 const unsigned long COMMAND_TIMEOUT = 20 * 60 * 1000; // 20 minutes in milliseconds
 
-void setMachineState(uint8_t newState) {
+void setMachineState(uint16_t newState) {
     machineState = newState;
+
+    if (newState == 1023) {
+        fire();
+        return;
+    }
     
     for (size_t i = 0; i < 7; i++) {
         if ((newState >> i) & 1) {
@@ -160,7 +165,7 @@ void loop() {
 
     if (Serial.available()) {
         String newStateStr = Serial.readStringUntil('\n');
-        uint8_t newState = newStateStr.toInt();
+        uint16_t newState = newStateStr.toInt();
         setMachineState(newState);
         lastCommandTime = millis();
     }
