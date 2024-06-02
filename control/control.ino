@@ -77,11 +77,11 @@ void setMachineState(uint16_t newState) {
 }
 
 void close() {
-    setMachineState(0b111111110);
+    setMachineState(0b000000000);
 }
 
 void open() {
-    setMachineState(0b000000000);
+    setMachineState(0b110000000);
 }
 
 void fire() {

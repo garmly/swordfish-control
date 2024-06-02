@@ -17,29 +17,29 @@ void setup() {
 }
 
 int[][] buttonPositions = {
-  {725, 425}, // Spark plug / CDI
-  {1075, 575}, // Ox Ignition Valve
-  {1015, 515}, // Ox Main Valve
-  {100, 200}, // Ox Fill Valve
-  {575, 575}, // Fuel Ignition Valve
-  {515, 515}, // Fuel Main Valve
-  {100, 300}, // Fuel Pressure Valve
-  {200, 300}, // Fuuel Vent Valve
-  {300, 300}  // Ox Vent Valve
+  {745, 450}, // Spark plug / CDI
+  {830, 500}, // Ox Ignition Valve
+  {910, 550}, // Ox Main Valve
+  {985, 495}, // Ox Fill Valve
+  {675, 555}, // Fuel Ignition Valve
+  {601, 505}, // Fuel Main Valve
+  {665, 80}, // Fuel Pressure Valve
+  {535, 75}, // Fuel Vent Valve
+  {950, 100} // Ox Vent Valve
 };
 
 float currentReading = 1;
 float scalingFactor = 1;
+boolean lock = false;
+
+PImage backgroundImage;
 
 void draw() {
-  background(30);
+  background(0);
   stroke(255);
 
-  // Draw title
-  fill(255);
-  textAlign(LEFT, TOP);
-  textSize(40);
-  text("M-240 \"Swordfish\" \nControl GUI", 10, 10);
+  backgroundImage = loadImage("background.png");
+  image(backgroundImage, 0, 0);
   
   // Draw buttons
   for (int i = 0; i < 9; i++) {
@@ -54,7 +54,11 @@ void draw() {
       textAlign(CENTER, CENTER);
       text("CDI", buttonPositions[i][0] + 30, buttonPositions[i][1] + 30);
     } else {
+      if (i == 7 || i == 8 || i == 3) {
+      displayIsoValve(buttonPositions[i][0] + 30, buttonPositions[i][1] + 30, true);
+      } else {
       displayIsoValve(buttonPositions[i][0] + 30, buttonPositions[i][1] + 30, false);
+      }
     }
   }
 
@@ -85,10 +89,14 @@ void draw() {
     textAlign(LEFT, CENTER);
     textSize(16);
     text("Pressure " + (i+1) + ": \n" + nf(data[i] * scalingFactor, 0, 3) + " psia", 10, 420 + i * 100 + 50);
-    }
   }
 
+}
+
   void mousePressed() {
+  if (lock) {
+    return;
+  }
     for (int i = 0; i < 9; i++) {
       if (mouseX > buttonPositions[i][0] && mouseX < buttonPositions[i][0] + 60 && mouseY > buttonPositions[i][1] && mouseY < buttonPositions[i][1] + 60) {
         buttonStates[i] = !buttonStates[i];
