@@ -92,13 +92,13 @@ void setMachineState(uint16_t newState) {
     }
 
     // Control the servos based on the machine state
-    if ((newState >> 7) & 1) {
+    if ((newState >> 8) & 1) {
         fuelVentValve.write(FUEL_VENT_VLV_OPEN);
     } else {
         fuelVentValve.write(FUEL_VENT_VLV_CLOSED);
     }
 
-    if ((newState >> 8) & 1) {
+    if ((newState >> 7) & 1) {
         fuelPresValve.write(FUEL_PRES_VLV_OPEN);
     } else {
         fuelPresValve.write(FUEL_PRES_VLV_CLOSED);
