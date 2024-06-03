@@ -21,11 +21,11 @@ int[][] buttonPositions = {
   {830, 500}, // Ox Ignition Valve
   {910, 550}, // Ox Main Valve
   {985, 495}, // Ox Fill Valve
+  {950, 100}, // Ox Vent Valve
   {675, 555}, // Fuel Ignition Valve
   {601, 505}, // Fuel Main Valve
-  {665, 80}, // Fuel Pressure Valve
-  {535, 75}, // Fuel Vent Valve
-  {950, 100} // Ox Vent Valve
+  {665, 80},  // Fuel Pressure Valve
+  {535, 75},  // Fuel Vent Valve
 };
 
 float currentReading = 1;
@@ -54,7 +54,7 @@ void draw() {
       textAlign(CENTER, CENTER);
       text("CDI", buttonPositions[i][0] + 30, buttonPositions[i][1] + 30);
     } else {
-      if (i == 7 || i == 8 || i == 3) {
+      if (i == 3 || i == 8 || i == 4) {
       displayIsoValve(buttonPositions[i][0] + 30, buttonPositions[i][1] + 30, true);
       } else {
       displayIsoValve(buttonPositions[i][0] + 30, buttonPositions[i][1] + 30, false);
