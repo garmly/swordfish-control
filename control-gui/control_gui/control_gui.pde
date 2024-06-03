@@ -30,7 +30,7 @@ int[][] buttonPositions = {
 
 float currentReading = 1;
 float scalingFactor = 1;
-boolean lock = false;
+boolean lock = true;
 
 PImage backgroundImage;
 
@@ -104,9 +104,21 @@ void draw() {
   text("Cold Flow (NO IGNT)", 250, 275);
   text("Fire", 250, 200);
 
+  // Add button to lock input at the top right
+  PImage lockImage;
+  if (lock) {
+    lockImage = loadImage("locked.png");
+  } else {
+    lockImage = loadImage("unlocked.png");
+  }
+  image(lockImage, width - 60, 10, 50, 50);
+
 }
 
-  void mousePressed() {
+void mousePressed() {
+  if (mouseX > width - 60 && mouseX < width - 10 && mouseY > 10 && mouseY < 60) {
+    lock = !lock;
+  }
   if (lock) {
     return;
   }
@@ -140,7 +152,7 @@ void draw() {
     if (mouseX > 100 && mouseX < 400 && mouseY > 175 && mouseY < 225) {
       myPort.write("65532\n");
     }
-  }
+}
 
 void serialEvent(Serial p) {
   String input = p.readStringUntil('\n');
