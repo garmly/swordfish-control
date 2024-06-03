@@ -43,17 +43,33 @@ const int relayPins[] = {
 // Binary value representing the binary state of each component
 uint16_t machineState = 0b000000000;
 
-static unsigned long lastCommandTime = 0;
+static unsigned long lastCommandTime = millis();
 const unsigned long COMMAND_TIMEOUT = 20 * 60 * 1000; // 20 minutes in milliseconds
 
 void setMachineState(uint16_t newState) {
     machineState = newState;
 
-    if (newState == 1023) {
+    if (newState == 65535) {
+        open();
+        return;
+    }
+    else if (newState == 65534) {
+        cold_flow();
+        return;
+    }
+    else if (newState == 65533) {
+        cold_flow_no_ignt();
+        return;
+    }
+    else if (newState == 65532) {
         fire();
         return;
     }
-    
+    else if (newState >= 512 && newState <= 65531) {
+        close();
+        return;
+    }
+
     for (size_t i = 0; i < 7; i++) {
         if ((newState >> i) & 1) {
             digitalWrite(relayPins[i], HIGH);
@@ -122,6 +138,60 @@ void fire() {
         printState();
     }
 
+}
+
+void cold_flow() {
+    unsigned long startTime = millis();
+
+    while (millis() - startTime < 81) {
+        setMachineState(0b000010000);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 1010) {
+        setMachineState(0b000010010);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 1375) {
+        setMachineState(0b000110010);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 2305) {
+        setMachineState(0b000110110);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 2474) {
+        setMachineState(0b000110100);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 3000) {
+        setMachineState(0b000100100);
+        printState();
+    }
+}
+
+void cold_flow_no_ignt() {
+    unsigned long startTime = millis();
+
+    while (millis() - startTime < 365) {
+        setMachineState(0b000100000);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 1000) {
+        setMachineState(0b000100100);
+        printState();
+    }
 }
 
 void setup() {

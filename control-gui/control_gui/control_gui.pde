@@ -128,17 +128,17 @@ void draw() {
 
     // Check if the "Cold Flow" button is pressed
     if (mouseX > 100 && mouseX < 400 && mouseY > 325 && mouseY < 375) {
-      myPort.write("1023\n");
+      myPort.write("65534\n");
     }
 
     // Check if the "Cold Flow (NO IGNT)" button is pressed
     if (mouseX > 100 && mouseX < 400 && mouseY > 250 && mouseY < 300) {
-      myPort.write("1022\n");
+      myPort.write("65533\n");
     }
 
     // Check if the "Fire" button is pressed
     if (mouseX > 100 && mouseX < 400 && mouseY > 175 && mouseY < 225) {
-      myPort.write("1021\n");
+      myPort.write("65532\n");
     }
   }
 
