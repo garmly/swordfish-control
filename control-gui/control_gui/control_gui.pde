@@ -79,8 +79,8 @@ void draw() {
     stroke(255);
     noFill();
     beginShape();
-    for (int j = 0; j < 299; j++) {
-      vertex(100 + j, 450 + i * 100 + 50 - timeGraphData[i][j] / 10);
+    for (int j = 299; j > 0; j--) {
+      vertex(400 - j, 450 + i * 100 + 50 - timeGraphData[i][j] / 10);
     }
     endShape();
 
