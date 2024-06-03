@@ -91,6 +91,19 @@ void draw() {
     text("Pressure " + (i+1) + ": \n" + nf(data[i] * scalingFactor, 0, 3) + " psia", 10, 420 + i * 100 + 50);
   }
 
+  // Draw protocol buttons.
+  fill(255);
+  rect(100, 325, 300, 50);
+  rect(100, 250, 300, 50);
+  rect(100, 175, 300, 50);
+
+  fill(0);
+  textAlign(CENTER, CENTER);
+  textSize(20);
+  text("Cold Flow", 250, 350);
+  text("Cold Flow (NO IGNT)", 250, 275);
+  text("Fire", 250, 200);
+
 }
 
   void mousePressed() {
@@ -111,6 +124,21 @@ void draw() {
 
       // Calculate the scaling factor
       scalingFactor = 14.6 / currentReading;
+    }
+
+    // Check if the "Cold Flow" button is pressed
+    if (mouseX > 100 && mouseX < 400 && mouseY > 325 && mouseY < 375) {
+      myPort.write("1023\n");
+    }
+
+    // Check if the "Cold Flow (NO IGNT)" button is pressed
+    if (mouseX > 100 && mouseX < 400 && mouseY > 250 && mouseY < 300) {
+      myPort.write("1022\n");
+    }
+
+    // Check if the "Fire" button is pressed
+    if (mouseX > 100 && mouseX < 400 && mouseY > 175 && mouseY < 225) {
+      myPort.write("1021\n");
     }
   }
 
