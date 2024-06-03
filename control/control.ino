@@ -19,10 +19,10 @@ const int PIN_FUEL_MAIN_VLV = 11;
 const int PIN_FUEL_IGNT_VLV = 12;
 
 // Positions of the servos at CLOSED and OPEN states
-const int FUEL_VENT_VLV_CLOSED = 0;
-const int FUEL_VENT_VLV_OPEN = 180;
-const int FUEL_PRES_VLV_CLOSED = 0;
-const int FUEL_PRES_VLV_OPEN = 180;
+const int FUEL_VENT_VLV_CLOSED = 180;
+const int FUEL_VENT_VLV_OPEN = 0;
+const int FUEL_PRES_VLV_CLOSED = 180;
+const int FUEL_PRES_VLV_OPEN = 0;
 
 // Pressure sensor values
 int presCC = 0;
@@ -57,7 +57,7 @@ Order:
 uint16_t machineState = 0b000000000;
 
 static unsigned long lastCommandTime = millis();
-const unsigned long COMMAND_TIMEOUT = 20 * 60 * 1000; // 20 minutes in milliseconds
+const unsigned long COMMAND_TIMEOUT = 120000000; // 20 minutes in milliseconds
 
 void setMachineState(uint16_t newState) {
     machineState = newState;

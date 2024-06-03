@@ -1,15 +1,23 @@
 import processing.serial.*;
+import java.io.*;
+import processing.serial.Serial; // Import the Serial class from the processing.serial package
+import java.io.*; // Import the java.io package for file I/O
 
 Serial myPort;  // The serial port
 int[] data = new int[4];  // Array to store the input data
+int machineState = 0;  // Variable to store the machine state
 boolean[] buttonStates = new boolean[9];  // Array to store button states
 int[][] timeGraphData = new int[3][300];  // Buffer to store the graph data
+long timestamp = System.currentTimeMillis() / 1000; // UNIX timestamp for the data file
+String filename;  // Filename for the data file
 
 void setup() {
   size(1200, 900);
   String portName = "COM3";
   myPort = new Serial(this, portName, 9600);
   myPort.bufferUntil('\n');
+  String sketchPath = sketchPath("");
+  filename = sketchPath + "/out/pread_" + timestamp + ".bin";
   
   for (int i = 0; i < 9; i++) {
     buttonStates[i] = false;
@@ -73,7 +81,6 @@ void draw() {
   // Draw a white square behind the pressure reading graph
   fill(0);
   rect(100, 400, 300, 300);
-
   // Draw the time graph for the first three inputs
   for (int i = 0; i < 3; i++) {
     stroke(255);
@@ -111,6 +118,7 @@ void draw() {
   } else {
     lockImage = loadImage("unlocked.png");
   }
+  image(lockImage, width - 60, 10, 50, 50);
   image(lockImage, width - 60, 10, 50, 50);
 
 }
@@ -163,11 +171,12 @@ void serialEvent(Serial p) {
       for (int i = 0; i < 3; i++) {
         data[i] = int(inputs[i]);
       }
-      int machineState = int(inputs[3]);
+      machineState = int(inputs[3]);
       for (int i = 0; i < 9; i++) {
         buttonStates[i] = (machineState & (1 << i)) != 0;
       }
       updateGraphData();
+      writeData();
     }
   }
 }
@@ -200,4 +209,26 @@ void updateGraphData() {
     }
     timeGraphData[i][0] = data[i];
   }
+}
+
+void writeData() {
+  try {
+    // Create a FileOutputStream to append data to the file
+    FileOutputStream fos = new FileOutputStream(filename, true);
+
+    // Convert the data array to bytes
+    byte[] bytes = new byte[data.length];
+    for (int i = 0; i < data.length; i++) {
+      bytes[i] = (byte) data[i];
+    }
+
+    // Write the data to the file
+    fos.write(bytes);
+
+    // Close the FileOutputStream
+    fos.close();
+  } catch (IOException e) {
+    e.printStackTrace();
+  }
+
 }
