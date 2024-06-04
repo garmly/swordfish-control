@@ -8,15 +8,16 @@ int[] data = new int[4];  // Array to store the input data
 int machineState = 0;  // Variable to store the machine state
 boolean[] buttonStates = new boolean[9];  // Array to store button states
 int[][] timeGraphData = new int[3][300];  // Buffer to store the graph data
-long timestamp = System.currentTimeMillis() / 1000; // UNIX timestamp for the data file
+long timestamp = System.currentTimeMillis(); // UNIX timestamp for the data file
 String filename;  // Filename for the data file
+String sketchPath;  // Path to the sketch folder
 
 void setup() {
   size(1200, 900);
   String portName = "COM3";
   myPort = new Serial(this, portName, 9600);
   myPort.bufferUntil('\n');
-  String sketchPath = sketchPath("");
+  sketchPath = sketchPath("");
   filename = sketchPath + "/out/pread_" + timestamp + ".bin";
   
   for (int i = 0; i < 9; i++) {
@@ -212,15 +213,33 @@ void updateGraphData() {
 }
 
 void writeData() {
+  // Check if the out folder exists and create it if it doesn't
+  File folder = new File(sketchPath + "/out");
+  if (!folder.exists()) {
+    folder.mkdir();
+  }
+
   try {
     // Create a FileOutputStream to append data to the file
     FileOutputStream fos = new FileOutputStream(filename, true);
 
     // Convert the data array to bytes
-    byte[] bytes = new byte[data.length];
-    for (int i = 0; i < data.length; i++) {
-      bytes[i] = (byte) data[i];
+    byte[] bytes = new byte[data.length * 4];
+    for (int i = 0; i < data.length - 1; i++) {
+      int value = data[i];
+      bytes[i * 4] = (byte) (value >> 24);
+      bytes[i * 4 + 1] = (byte) (value >> 16);
+      bytes[i * 4 + 2] = (byte) (value >> 8);
+      bytes[i * 4 + 3] = (byte) value;
     }
+
+    // Write the timestamp to the file
+    long timestampBytes = System.currentTimeMillis();
+    byte[] timestampBytesArray = new byte[8];
+    for (int i = 0; i < 8; i++) {
+      timestampBytesArray[i] = (byte) (timestampBytes >> (56 - i * 8));
+    }
+    fos.write(timestampBytesArray);
 
     // Write the data to the file
     fos.write(bytes);
@@ -232,3 +251,6 @@ void writeData() {
   }
 
 }
+
+
+
