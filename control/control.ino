@@ -24,6 +24,8 @@ const int FUEL_VENT_VLV_OPEN = 0;
 const int FUEL_PRES_VLV_CLOSED = 180;
 const int FUEL_PRES_VLV_OPEN = 0;
 
+
+
 // Pressure sensor values
 int presCC = 0;
 int presOx = 0;
@@ -78,7 +80,22 @@ void setMachineState(uint16_t newState) {
         fire();
         return;
     }
-    else if (newState >= 512 && newState <= 65531) {
+
+    else if (newState == 65531) {
+        fuel_calibration();
+        return;
+    }
+
+    else if (newState == 65530) {
+        ox_calibration();
+        return;
+    }
+    else if (newState == 65529) {
+        test_connections();
+        return;
+    }
+
+    else if (newState >= 512 && newState <= 65528) {
         close();
         return;
     }
@@ -117,39 +134,40 @@ void fire() {
     unsigned long startTime = millis();
 
     while (millis() - startTime < 81) {
-        setMachineState(33);
+        setMachineState(161);
         printState();
     }
 
     startTime = millis();
     while (millis() - startTime < 1010) {
-        setMachineState(35);
+        setMachineState(163);
         printState();
     }
 
     startTime = millis();
     while (millis() - startTime < 1375) {
-        setMachineState(99);
+        setMachineState(227);
         printState();
     }
 
     startTime = millis();
     while (millis() - startTime < 2305) {
-        setMachineState(103);
+        setMachineState(231);
         printState();
     }
 
     startTime = millis();
     while (millis() - startTime < 2474) {
-        setMachineState(100);
+        setMachineState(228);
         printState();
     }
 
     startTime = millis();
     while (millis() - startTime < 3000) {
-        setMachineState(68);
+        setMachineState(196);
         printState();
     }
+
 
 }
 
@@ -157,37 +175,37 @@ void cold_flow() {
     unsigned long startTime = millis();
 
     while (millis() - startTime < 81) {
-        setMachineState(32);
+        setMachineState(160);
         printState();
     }
 
     startTime = millis();
     while (millis() - startTime < 1010) {
-        setMachineState(34);
+        setMachineState(162);
         printState();
     }
 
     startTime = millis();
     while (millis() - startTime < 1375) {
-        setMachineState(98);
+        setMachineState(226);
         printState();
     }
 
     startTime = millis();
     while (millis() - startTime < 2305) {
-        setMachineState(102);
+        setMachineState(230);
         printState();
     }
 
     startTime = millis();
     while (millis() - startTime < 2474) {
-        setMachineState(100);
+        setMachineState(228);
         printState();
     }
 
     startTime = millis();
     while (millis() - startTime < 3000) {
-        setMachineState(68);
+        setMachineState(196);
         printState();
     }
 }
@@ -196,16 +214,110 @@ void cold_flow_no_ignt() {
     unsigned long startTime = millis();
 
     while (millis() - startTime < 365) {
+        setMachineState(192);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 1000) {
+        setMachineState(196);
+        printState();
+    }
+}
+
+void fuel_calibration() {
+    unsigned long startTime = millis();
+
+    while(millis() - startTime < 1000) {
+    setMachineState(192);
+    printState();
+    }
+
+    startTime = millis();
+    while(millis() - startTime < 1000) {
+    setMachineState(0);
+    printState();
+    }
+}
+
+void ox_calibration() {
+    unsigned long startTime = millis();
+
+    while(millis() - startTime < 1000) {
+    setMachineState(132);
+    printState();
+    }
+
+    startTime = millis();
+    while(millis() - startTime < 1000) {
+    setMachineState(0);
+    printState();
+    }
+}
+
+void test_connections() {
+    unsigned long startTime = millis();
+
+    while (millis() - startTime < 1000) {
+        setMachineState(2);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 1000) {
+        setMachineState(4);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 1000) {
+        setMachineState(8);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 1000) {
+        setMachineState(16);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 1000) {
+        setMachineState(32);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 1000) {
         setMachineState(64);
         printState();
     }
 
     startTime = millis();
     while (millis() - startTime < 1000) {
-        setMachineState(68);
+        setMachineState(128);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 1000) {
+        setMachineState(256);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 1000) {
+        setMachineState(1);
+        printState();
+    }
+
+    startTime = millis();
+    while (millis() - startTime < 1000) {
+        setMachineState(0);
         printState();
     }
 }
+
 
 void setup() {
     
