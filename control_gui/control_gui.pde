@@ -1,7 +1,7 @@
 import processing.serial.*;
 import java.io.*;
-import processing.serial.Serial; // Import the Serial class from the processing.serial package
-import java.io.*; // Import the java.io package for file I/O
+import processing.serial.Serial;
+import java.io.*;
 
 Serial myPort;  // The serial port
 int[] data = new int[4];  // Array to store the input data
@@ -11,6 +11,8 @@ int[][] timeGraphData = new int[3][300];  // Buffer to store the graph data
 long timestamp = System.currentTimeMillis(); // UNIX timestamp for the data file
 String filename;  // Filename for the data file
 String sketchPath;  // Path to the sketch folder
+String inputState = "";
+boolean isInputActive = false;
 
 void setup() {
   size(1200, 900);
@@ -112,6 +114,18 @@ void draw() {
   text("Cold Flow (NO IGNT)", 250, 275);
   text("Fire", 250, 200);
 
+  // At the bottom left of the screen, have a console that displays the current state of the machine and allows input
+  rect(100, 800, 300, 50);
+  fill(255);
+  textAlign(LEFT, CENTER);
+  textSize(20);
+  if (isInputActive) {
+    text("Input State: " + inputState, 110, 825);
+  }
+  else {
+    text("Machine State: " + machineState, 110, 825);
+  }
+
   // Add button to lock input at the top right
   PImage lockImage;
   if (lock) {
@@ -124,7 +138,29 @@ void draw() {
 
 }
 
+void keyPressed() {
+  if (isInputActive && !lock) {
+    if (key >= '0' && key <= '9') {
+      inputState += key;
+    } else if (key == BACKSPACE) {
+      inputState = inputState.substring(0, max(0, inputState.length() - 1));
+    } else if (key == ENTER) {
+      machineState = Integer.parseInt(inputState);
+      inputState = inputState + "\n";
+      myPort.write(machineState + "\n");
+      inputState = "";
+      isInputActive = false;
+    }
+  }
+}
+
 void mousePressed() {
+  if (mouseX > 100 && mouseX < 400 && mouseY > 800 && mouseY < 850) {
+    isInputActive = true;
+  }
+  else {
+    isInputActive = false;
+  }
   if (mouseX > width - 60 && mouseX < width - 10 && mouseY > 10 && mouseY < 60) {
     lock = !lock;
   }
