@@ -155,7 +155,7 @@ void keyPressed() {
 }
 
 void mousePressed() {
-  if (mouseX > 100 && mouseX < 400 && mouseY > 800 && mouseY < 850) {
+  if (mouseX > 100 && mouseX < 400 && mouseY > 800 && mouseY < 850 && !lock) {
     isInputActive = true;
   }
   else {
