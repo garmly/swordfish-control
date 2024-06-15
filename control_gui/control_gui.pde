@@ -114,6 +114,17 @@ void draw() {
   text("Cold Flow (NO IGNT)", 250, 275);
   text("Fire", 250, 200);
 
+  // Add the calibration square buttons at the bottom right
+  fill(255);
+  rect(width - 250, height - 100, 50, 50);
+  rect(width - 175, height - 100, 50, 50);
+  rect(width - 100, height - 100, 50, 50);
+  textSize(20);
+  fill(0);
+  text("CF", width - 225, height - 75);
+  text("COx", width - 150, height - 75);
+  text("CA", width - 75, height - 75);
+
   // At the bottom left of the screen, have a console that displays the current state of the machine and allows input
   rect(100, 800, 300, 50);
   fill(255);
@@ -196,6 +207,21 @@ void mousePressed() {
     // Check if the "Fire" button is pressed
     if (mouseX > 100 && mouseX < 400 && mouseY > 175 && mouseY < 225) {
       myPort.write("65532\n");
+    }
+
+    // Check if the "CF" button is pressed
+    if (mouseX > width - 250 && mouseX < width - 200 && mouseY > height - 100 && mouseY < height - 50) {
+      myPort.write("65531\n");
+    }
+
+    // Check if the "COx" button is pressed
+    if (mouseX > width - 175 && mouseX < width - 125 && mouseY > height - 100 && mouseY < height - 50) {
+      myPort.write("65530\n");
+    }
+
+    // Check if the "CA" button is pressed
+    if (mouseX > width - 100 && mouseX < width - 50 && mouseY > height - 100 && mouseY < height - 50) {
+      myPort.write("65529\n");
     }
 }
 
