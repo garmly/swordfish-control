@@ -18,10 +18,10 @@ with open(filename, "rb") as file:
     file_length = len(file.read())
     file.seek(0)  # Reset file pointer to the beginning
 
-    data = np.zeros((file_length // 84, 5))
+    data = np.zeros((file_length // 24, 5))
 
     # Go through each reading
-    for i in range(file_length // 84):
+    for i in range(file_length // 24):
         # Read the timestamp
         timestamp_bytes = file.read(8)
         data[i,0] = int.from_bytes(timestamp_bytes, byteorder="big")
@@ -38,9 +38,11 @@ fig, axs = plt.subplots(4, 1, figsize=(8, 10))
 # Plot the data in four subplots
 for i in range(4):
     axs[i].plot(data[:, 0] - data[0,0], data[:, i+1])
-    axs[i].set_xlabel('Timestamp')
     axs[i].set_ylabel(f'Value {i+1}')
     axs[i].grid()
+
+
+axs[3].set_xlabel('Timestamp')
 
 plt.suptitle('Data Plot')
 plt.tight_layout()

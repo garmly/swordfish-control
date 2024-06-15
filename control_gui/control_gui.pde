@@ -46,6 +46,7 @@ boolean lock = true;
 PImage backgroundImage;
 
 void draw() {
+  writeData();
   background(0);
   stroke(255);
 
@@ -98,7 +99,8 @@ void draw() {
     fill(255);
     textAlign(LEFT, CENTER);
     textSize(16);
-    text("Pressure " + (i+1) + ": \n" + nf(data[i] * scalingFactor, 0, 3) + " psia", 10, 420 + i * 100 + 50);
+    String[] pressureLabels = {"N2", "Ox", "CC"};
+    text(pressureLabels[i] + " Pressure: \n" + nf(data[i] * scalingFactor, 0, 3) + " psia", 10, 420 + i * 100 + 50);
   }
 
   // Draw protocol buttons.
@@ -178,51 +180,51 @@ void mousePressed() {
   if (lock) {
     return;
   }
-    for (int i = 0; i < 9; i++) {
-      if (mouseX > buttonPositions[i][0] && mouseX < buttonPositions[i][0] + 60 && mouseY > buttonPositions[i][1] && mouseY < buttonPositions[i][1] + 60) {
-        buttonStates[i] = !buttonStates[i];
-        updateMachineState();
-      }
+  for (int i = 0; i < 9; i++) {
+    if (mouseX > buttonPositions[i][0] && mouseX < buttonPositions[i][0] + 60 && mouseY > buttonPositions[i][1] && mouseY < buttonPositions[i][1] + 60) {
+      buttonStates[i] = !buttonStates[i];
+      updateMachineState();
     }
+  }
 
-    // Check if the "SCALE" button is pressed
-    if (mouseX > 100 && mouseX < 400 && mouseY > 700 && mouseY < 750) {
-      // Calculate the average of the three channel readings
-      currentReading = (data[0] + data[1] + data[2]) / 3.0;
+  // Check if the "SCALE" button is pressed
+  if (mouseX > 100 && mouseX < 400 && mouseY > 700 && mouseY < 750) {
+    // Calculate the average of the three channel readings
+    currentReading = (data[0] + data[1] + data[2]) / 3.0;
 
-      // Calculate the scaling factor
-      scalingFactor = 14.6 / currentReading;
-    }
+    // Calculate the scaling factor
+    scalingFactor = 14.6 / currentReading;
+  }
 
-    // Check if the "Cold Flow" button is pressed
-    if (mouseX > 100 && mouseX < 400 && mouseY > 325 && mouseY < 375) {
-      myPort.write("65534\n");
-    }
+  // Check if the "Cold Flow" button is pressed
+  if (mouseX > 100 && mouseX < 400 && mouseY > 325 && mouseY < 375) {
+    myPort.write("65534\n");
+  }
 
-    // Check if the "Cold Flow (NO IGNT)" button is pressed
-    if (mouseX > 100 && mouseX < 400 && mouseY > 250 && mouseY < 300) {
-      myPort.write("65533\n");
-    }
+  // Check if the "Cold Flow (NO IGNT)" button is pressed
+  if (mouseX > 100 && mouseX < 400 && mouseY > 250 && mouseY < 300) {
+    myPort.write("65533\n");
+  }
 
-    // Check if the "Fire" button is pressed
-    if (mouseX > 100 && mouseX < 400 && mouseY > 175 && mouseY < 225) {
-      myPort.write("65532\n");
-    }
+  // Check if the "Fire" button is pressed
+  if (mouseX > 100 && mouseX < 400 && mouseY > 175 && mouseY < 225) {
+    myPort.write("65532\n");
+  }
 
-    // Check if the "CF" button is pressed
-    if (mouseX > width - 250 && mouseX < width - 200 && mouseY > height - 100 && mouseY < height - 50) {
-      myPort.write("65531\n");
-    }
+  // Check if the "CF" button is pressed
+  if (mouseX > width - 250 && mouseX < width - 200 && mouseY > height - 100 && mouseY < height - 50) {
+    myPort.write("65531\n");
+  }
 
-    // Check if the "COx" button is pressed
-    if (mouseX > width - 175 && mouseX < width - 125 && mouseY > height - 100 && mouseY < height - 50) {
-      myPort.write("65530\n");
-    }
+  // Check if the "COx" button is pressed
+  if (mouseX > width - 175 && mouseX < width - 125 && mouseY > height - 100 && mouseY < height - 50) {
+    myPort.write("65530\n");
+  }
 
-    // Check if the "CA" button is pressed
-    if (mouseX > width - 100 && mouseX < width - 50 && mouseY > height - 100 && mouseY < height - 50) {
-      myPort.write("65529\n");
-    }
+  // Check if the "CA" button is pressed
+  if (mouseX > width - 100 && mouseX < width - 50 && mouseY > height - 100 && mouseY < height - 50) {
+    myPort.write("65529\n");
+  }
 }
 
 void serialEvent(Serial p) {
@@ -238,8 +240,8 @@ void serialEvent(Serial p) {
       for (int i = 0; i < 9; i++) {
         buttonStates[i] = (machineState & (1 << i)) != 0;
       }
+      data[3] = machineState;
       updateGraphData();
-      writeData();
     }
   }
 }
@@ -256,13 +258,13 @@ void displayIsoValve(int x, int y, boolean isVertical) {
 }
 
 void updateMachineState() {
-  int machineState = 0;
+  int inputMachineState = 0;
   for (int i = 0; i < 9; i++) {
     if (buttonStates[i]) {
-      machineState |= (1 << i);
+      inputMachineState |= (1 << i);
     }
   }
-  myPort.write(machineState + "\n");
+  myPort.write(inputMachineState + "\n");
 }
 
 void updateGraphData() {
@@ -287,7 +289,7 @@ void writeData() {
 
     // Convert the data array to bytes
     byte[] bytes = new byte[data.length * 4];
-    for (int i = 0; i < data.length - 1; i++) {
+    for (int i = 0; i < data.length - 0; i++) {
       int value = data[i];
       bytes[i * 4] = (byte) (value >> 24);
       bytes[i * 4 + 1] = (byte) (value >> 16);

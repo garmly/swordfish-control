@@ -19,10 +19,10 @@ const int PIN_FUEL_MAIN_VLV = 11;
 const int PIN_FUEL_IGNT_VLV = 12;
 
 // Positions of the servos at CLOSED and OPEN states
-const int FUEL_VENT_VLV_CLOSED = 180;
-const int FUEL_VENT_VLV_OPEN = 0;
-const int FUEL_PRES_VLV_CLOSED = 180;
-const int FUEL_PRES_VLV_OPEN = 0;
+const int FUEL_VENT_VLV_CLOSED = 0;
+const int FUEL_VENT_VLV_OPEN = 180;
+const int FUEL_PRES_VLV_CLOSED = 0;
+const int FUEL_PRES_VLV_OPEN = 180;
 
 
 
