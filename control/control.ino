@@ -361,8 +361,10 @@ void loop() {
     if (Serial.available()) {
         String newStateStr = Serial.readStringUntil('\n');
         uint16_t newState = newStateStr.toInt();
-        setMachineState(newState);
         lastCommandTime = millis();
+        if (newState >= 0 && newState <= 65535) {
+            setMachineState(newState);
+        }
     }
 
     // Check if the command timeout has occurred
